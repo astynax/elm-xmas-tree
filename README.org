@@ -1,0 +1,17 @@
+#+TITLE: Elm-powered Xmas Tree
+#+DECRIPTION: Elm-version of Xmas Tree from http://adventofcode.com
+
+This is Elm-version of Xmas Tree [[http://adventofcode.com][from here]].
+
+* Happy New Year!
+
+#+BEGIN_SRC text
+       *
+      >o<
+     >>O<<
+    >>*>>@<
+   >>o>>O<<<
+  >O>O>@>>>O<
+ >>>O>o>>>@<<<
+>>*<<<o>>*>>>o<
+#+END_SRC
