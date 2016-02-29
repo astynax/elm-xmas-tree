@@ -3,7 +3,7 @@
 
 This is Elm-version of Xmas Tree [[http://adventofcode.com][from here]].
 
-[[http://astynax.neocities.org/happynewyear/][Live demo]].
+[[https://astynax.github.io/elm-xmas-tree][Live demo]].
 
 * Happy New Year!
 
