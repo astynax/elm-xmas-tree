@@ -30,7 +30,7 @@ view t =
          , div [ id "pine-container" ] [ pineView 25 t ]
          , div [ id "footer"
                ] [ a [ href "https://github.com/astynax/elm-xmas-tree"
-                     ] [ text "Want to grow a copyyour one? Go and clone!" ]
+                     ] [ text "Want to grow a copy? Go and clone!" ]
                  ]
          ]
 
