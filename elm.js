@@ -10749,7 +10749,7 @@ Elm.Main.make = function (_elm) {
               _U.list([$Html$Attributes.id("footer")]),
               _U.list([A2($Html.a,
               _U.list([$Html$Attributes.href("https://github.com/astynax/elm-xmas-tree")]),
-              _U.list([$Html.text("Want to grow a copyyour one? Go and clone!")]))]))]));
+              _U.list([$Html.text("Want to grow a copy? Go and clone!")]))]))]));
    };
    var main = A2($Signal.map,view,$Time.every(5 * $Time.second));
    return _elm.Main.values = {_op: _op
