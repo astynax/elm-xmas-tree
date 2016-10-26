@@ -17,3 +17,8 @@ This is Elm-version of Xmas Tree [[http://adventofcode.com][from here]].
  >>>O>o>>>@<<<
 >>*<<<o>>*>>>o<
 #+END_SRC
+
+* How to
+
+Just run ~elm-make Main.elm --output elm.js~ (you will need an
+Elm Platform 0.17 installed) and then open ~index.html~.
