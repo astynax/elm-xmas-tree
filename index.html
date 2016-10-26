@@ -66,8 +66,10 @@
     <title>Happy New Year!</title>
   </head>
   <body>
+    <div id="root"></div>
     <script type="text/javascript">
-      Elm.fullscreen(Elm.Main);
+      var node = document.getElementById('root');
+      var app = Elm.Main.embed(node);
     </script>
   </body>
 </html>
