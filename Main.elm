@@ -7,8 +7,7 @@ import Platform.Sub as Sub
 import Random exposing (Generator, Seed, initialSeed, generate)
 import String
 import Time exposing (Time)
-import Html exposing (Html, span, div, text, a)
-import Html.App exposing (program)
+import Html exposing (Html, program, span, div, text, a)
 import Html.Attributes exposing (id, class, href)
 
 
@@ -33,7 +32,7 @@ type Msg
     | NewPine Pine
 
 
-main : Program Never
+main : Program Never Model Msg
 main =
     program
         { init = update Tick []
@@ -87,12 +86,12 @@ pine n =
                 forever []
             else
                 Random.andThen
-                    (row cnt)
                     (\r ->
                         Random.map
                             ((::) ( n - cnt, r ))
                             (go (cnt + 1))
                     )
+                    (row cnt)
     in
         go 1
 
@@ -213,19 +212,19 @@ toy =
 chain : Int -> Bool -> Generator (List Elem)
 chain n isToy =
     if n > 5 then
-        Random.andThen
-            (if isToy then
-                toy
-             else
-                fur
-            )
-            (\el ->
-                let
-                    n' =
-                        n - elemLen el
-                in
-                    Random.map ((::) el) (chain n' (not isToy))
-            )
+        (if isToy then
+            toy
+         else
+            fur
+        )
+            |> Random.andThen
+                (\el ->
+                    let
+                        nn =
+                            n - elemLen el
+                    in
+                        Random.map ((::) el) (chain nn (not isToy))
+                )
     else if isToy then
         if n <= 4 then
             Random.map (\t -> [ t, Fur True (n - 1) ]) toy
@@ -247,11 +246,11 @@ chain n isToy =
                 toy
     else
         Random.andThen
-            fur
             (\f ->
                 Random.map ((::) f) <|
                     chain (n - elemLen f) True
             )
+            fur
 
 
 elemLen : Elem -> Int
@@ -267,8 +266,8 @@ elemLen el =
 fixDirection : List Elem -> List Elem
 fixDirection es =
     case es of
-        (Fur _ n) :: es' ->
-            Fur False n :: es'
+        (Fur _ n) :: es ->
+            Fur False n :: es
 
         _ ->
             es
