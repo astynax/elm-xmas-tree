@@ -1,7 +1,7 @@
 #+TITLE: Elm-powered Xmas Tree
 #+DECRIPTION: Elm-version of Xmas Tree from http://adventofcode.com
 
-This is Elm-version of Xmas Tree [[http://adventofcode.com][from here]].
+This is Elm-version of Xmas Tree [[http://adventofcode.com/2015][from here]].
 
 [[https://astynax.github.io/elm-xmas-tree][Live demo]].
 
