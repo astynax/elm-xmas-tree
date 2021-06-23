@@ -1,18 +1,24 @@
 module Main exposing (..)
 
-import Debug
+import Browser
+import Html exposing (Html, a, div, span, text)
+import Html.Attributes exposing (class, href, id)
 import List
 import Platform.Cmd as Cmd
 import Platform.Sub as Sub
-import Random exposing (Generator, Seed, initialSeed, generate)
+import Random exposing (Generator, Seed, generate, initialSeed)
 import String
-import Time exposing (Time)
-import Html exposing (Html, program, span, div, text, a)
-import Html.Attributes exposing (id, class, href)
+import Time exposing (Posix)
+
+
+type FurSize
+    = S1
+    | S2
+    | S3
 
 
 type Elem
-    = Fur Bool Int
+    = Fur Bool FurSize
     | Toy1
     | Toy2
     | Toy3
@@ -32,10 +38,10 @@ type Msg
     | NewPine Pine
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    program
-        { init = update Tick []
+    Browser.element
+        { init = \() -> update Tick []
         , update = update
         , subscriptions = always ticks
         , view = view
@@ -48,20 +54,20 @@ update msg model =
         Tick ->
             ( model, generatePine 25 )
 
-        NewPine pine ->
-            ( pine, Cmd.none )
+        NewPine p ->
+            ( p, Cmd.none )
 
 
 ticks : Sub Msg
 ticks =
-    Time.every (5 * Time.second) <| always Tick
+    Time.every 5000 <| always Tick
 
 
 view : Model -> Html Msg
-view pine =
+view model =
     div []
         [ div [ id "happynewyear" ] [ text "Happy New Year!" ]
-        , div [ id "pine-container" ] [ render pine ]
+        , div [ id "pine-container" ] [ render model ]
         , div
             [ id "footer"
             ]
@@ -84,6 +90,7 @@ pine n =
         go cnt =
             if cnt > n then
                 forever []
+
             else
                 Random.andThen
                     (\r ->
@@ -93,7 +100,7 @@ pine n =
                     )
                     (row cnt)
     in
-        go 1
+    go 1
 
 
 row : Int -> Generator (List Elem)
@@ -103,10 +110,10 @@ row n =
             forever [ Star ]
 
         2 ->
-            Random.map (\x -> [ Fur False 1, x, Fur True 1 ]) toy
+            Random.map (\x -> [ Fur False S1, x, Fur True S1 ]) toy
 
         3 ->
-            Random.map (\x -> [ Fur False 2, x, Fur True 2 ]) toy
+            Random.map (\x -> [ Fur False S2, x, Fur True S2 ]) toy
 
         _ ->
             Random.map fixDirection <| chain (n * 2 - 1) False
@@ -118,7 +125,7 @@ render =
         << List.map
             (\( s, r ) ->
                 div []
-                    ((span [] [ text <| String.repeat s " " ])
+                    (span [] [ text <| String.repeat s " " ]
                         :: List.map renderElem r
                     )
             )
@@ -159,54 +166,44 @@ renderElem el =
                 Toy3 ->
                     "@"
 
-                Fur False 1 ->
+                Fur False S1 ->
                     ">"
 
-                Fur False 2 ->
+                Fur False S2 ->
                     ">>"
 
-                Fur False 3 ->
+                Fur False S3 ->
                     ">>>"
 
-                Fur True 1 ->
+                Fur True S1 ->
                     "<"
 
-                Fur True 2 ->
+                Fur True S2 ->
                     "<<"
 
-                Fur True 3 ->
+                Fur True S3 ->
                     "<<<"
-
-                _ ->
-                    toString el
         ]
 
 
-oneOf : List a -> Generator a
-oneOf xs =
-    flip Random.map (Random.int 0 (List.length xs - 1)) <|
-        \n ->
-            case List.drop n xs of
-                x :: _ ->
-                    x
-
-                _ ->
-                    Debug.crash "Oops!"
+bool : Generator Bool
+bool =
+    Random.uniform True [ False ]
 
 
 forever : a -> Generator a
-forever =
-    flip Random.map Random.bool << always
+forever x =
+    Random.uniform x []
 
 
 fur : Generator Elem
 fur =
-    Random.map2 Fur Random.bool (Random.int 1 3)
+    Random.map2 Fur bool (Random.uniform S1 [ S2, S3 ])
 
 
 toy : Generator Elem
 toy =
-    oneOf [ Toy1, Toy2, Toy3, Star ]
+    Random.uniform Toy1 [ Toy2, Toy3, Star ]
 
 
 chain : Int -> Bool -> Generator (List Elem)
@@ -214,6 +211,7 @@ chain n isToy =
     if n > 5 then
         (if isToy then
             toy
+
          else
             fur
         )
@@ -223,27 +221,30 @@ chain n isToy =
                         nn =
                             n - elemLen el
                     in
-                        Random.map ((::) el) (chain nn (not isToy))
+                    Random.map ((::) el) (chain nn (not isToy))
                 )
+
     else if isToy then
         if n <= 4 then
-            Random.map (\t -> [ t, Fur True (n - 1) ]) toy
+            Random.map (\t -> [ t, Fur True <| fromInt n ]) toy
+
         else
             Random.map3
                 (\t1 f t2 ->
                     [ t1
                     , f
                     , t2
-                    , Fur True (3 - elemLen f)
+                    , Fur True <| fromInt <| 3 - elemLen f
                     ]
                 )
                 toy
                 (Random.map2
                     Fur
-                    Random.bool
-                    (Random.int 1 2)
+                    bool
+                    (Random.uniform S1 [ S2 ])
                 )
                 toy
+
     else
         Random.andThen
             (\f ->
@@ -253,11 +254,30 @@ chain n isToy =
             fur
 
 
+fromInt : Int -> FurSize
+fromInt x =
+    case x of
+        1 ->
+            S1
+
+        2 ->
+            S2
+
+        _ ->
+            S3
+
+
 elemLen : Elem -> Int
 elemLen el =
     case el of
-        Fur _ n ->
-            n
+        Fur _ S1 ->
+            1
+
+        Fur _ S2 ->
+            2
+
+        Fur _ S3 ->
+            3
 
         _ ->
             1
@@ -266,8 +286,8 @@ elemLen el =
 fixDirection : List Elem -> List Elem
 fixDirection es =
     case es of
-        (Fur _ n) :: es ->
-            Fur False n :: es
+        (Fur _ n) :: ns ->
+            Fur False n :: ns
 
         _ ->
             es
