@@ -1,5 +1,5 @@
-elm.min.js: elm.js
+docs/elm.min.js: docs/elm.js
 	closure-compiler --js $< --js_output_file $@
 
-elm.js: Main.elm
+docs/elm.js: Main.elm
 	elm make --optimize --output=$@ $<
