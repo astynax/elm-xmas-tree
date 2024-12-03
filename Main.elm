@@ -226,7 +226,7 @@ chain n isToy =
 
     else if isToy then
         if n <= 4 then
-            Random.map (\t -> [ t, Fur True <| fromInt n ]) toy
+            Random.map (\t -> [ t, Fur True <| fromInt (n - 1) ]) toy
 
         else
             Random.map3
